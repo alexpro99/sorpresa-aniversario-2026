@@ -1,50 +1,352 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fbf4ef">
-  <title>Algo especial 🩷</title>
-  <style>
-    :root{color-scheme:light;--bg:#fbf4ef;--card:#fff;--rose:#c96f82;--pink:#f2b8c6;--ink:#4e3a3f;--muted:#9a8187}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(120% 60% at 100% 0%,#fde3ea 0%,transparent 60%),radial-gradient(100% 50% at 0% 100%,#f6e4d8 0%,transparent 60%),var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
-    main{width:min(100%,460px);padding:36px 24px 30px;text-align:center;background:var(--card);border-radius:26px;box-shadow:0 16px 48px #4e3a3f18}
-    .heart{font-size:44px;animation:beat 1.4s infinite}
-    h1{font-family:Georgia,serif;font-size:clamp(30px,8vw,40px);line-height:1.1;margin:10px 0;color:var(--rose)}
-    p{color:var(--muted);line-height:1.55;margin:10px 0 22px}
-    .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:24px}
-    .unit{background:#fff5f7;border-radius:16px;padding:14px 4px}
-    .number{font-family:Georgia,serif;font-size:clamp(25px,7vw,34px);font-weight:700;color:var(--rose);font-variant-numeric:tabular-nums}
-    .label{margin-top:4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-    .date{font-size:13px;color:var(--rose);font-weight:700;margin-top:22px}
-    @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.17)}30%{transform:scale(1)}45%{transform:scale(1.1)}}
-    @media(prefers-reduced-motion:reduce){.heart{animation:none}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3 años, papi 🩷</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF4EF; --card:#FFFFFF; --nude:#F3E3DA; --nude-2:#E9D2C6;
+    --pink:#F2B8C6; --pink-2:#E7949F; --rose:#C96F82; --ink:#4E3A3F; --muted:#9A8187;
+    --radius:22px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(120% 60% at 100% 0%, #FDE3EA 0%, transparent 60%),
+      radial-gradient(100% 50% at 0% 100%, #F6E4D8 0%, transparent 60%),
+      var(--bg);
+    background-attachment:fixed; min-height:100dvh; overflow-x:hidden;
+  }
+  .app{max-width:460px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 20px)}
+  .top{display:flex;align-items:center;gap:12px;height:40px;transition:opacity .3s}
+  .top.hidden{opacity:0;pointer-events:none;height:0;overflow:hidden}
+  .back{width:38px;height:38px;border-radius:50%;border:none;background:var(--card);color:var(--rose);
+    font-size:18px;box-shadow:0 2px 10px rgba(201,111,130,.15);cursor:pointer;flex:none}
+  .back:disabled{opacity:.35}
+  .bar{flex:1;height:8px;border-radius:99px;background:var(--nude);overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--pink-2));border-radius:99px;transition:width .5s cubic-bezier(.4,1.4,.6,1)}
+  .count{font-size:13px;font-weight:700;color:var(--muted);min-width:36px;text-align:right}
+
+  .stage{flex:1;position:relative;display:flex;flex-direction:column}
+  .screen{animation:in .5s cubic-bezier(.2,.8,.2,1) both;display:flex;flex-direction:column;flex:1}
+  .screen.out{animation:out .25s ease both}
+  @keyframes in{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes out{to{opacity:0;transform:translateY(-12px)}}
+
+  h1,h2{font-family:'Fraunces',serif;font-weight:600;margin:0;letter-spacing:-.01em}
+  h1{font-size:38px;line-height:1.05}
+  h2{font-size:25px;line-height:1.18;margin-top:18px}
+  .em{font-style:italic;color:var(--rose)}
+  .sub{color:var(--muted);font-size:15px;margin:8px 0 0;line-height:1.45}
+
+  .polaroid{background:#fff;padding:10px 10px 34px;border-radius:6px;box-shadow:0 10px 30px rgba(78,58,63,.14);
+    transform:rotate(-2.2deg);margin:14px auto 0;width:78%;position:relative}
+  .polaroid.r{transform:rotate(2deg)}
+  .polaroid img{width:100%;aspect-ratio:4/3.4;object-fit:cover;border-radius:3px;display:block;background:var(--nude)}
+  .polaroid span{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-family:'Fraunces',serif;font-style:italic;font-size:14px;color:var(--muted)}
+  .tape{position:absolute;top:-10px;left:50%;width:70px;height:22px;transform:translateX(-50%) rotate(-4deg);background:rgba(242,184,198,.6);border-radius:2px}
+
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .opt{background:var(--card);border:2px solid transparent;border-radius:18px;padding:14px 10px 12px;text-align:center;cursor:pointer;
+    box-shadow:0 3px 14px rgba(78,58,63,.07);transition:transform .15s,border-color .2s,background .2s;font:inherit;color:inherit;
+    display:flex;flex-direction:column;align-items:center;gap:6px;min-height:96px;justify-content:center}
+  .opt:active{transform:scale(.96)}
+  .opt .e{font-size:28px;line-height:1}
+  .opt .t{font-weight:700;font-size:14.5px;line-height:1.25}
+  .opt.sel{border-color:var(--pink-2);background:#FFF5F7;animation:pop .35s}
+  @keyframes pop{50%{transform:scale(1.05)}}
+  .swatch{width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(0,0,0,.06)}
+
+  .reply{margin-top:14px;min-height:24px;text-align:center;font-family:'Fraunces',serif;font-style:italic;color:var(--rose);font-size:17px;opacity:0;transition:opacity .3s}
+  .reply.show{opacity:1}
+  .hint{display:inline-flex;align-items:center;gap:6px;background:var(--pink);color:#fff;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:99px;margin-top:14px;align-self:flex-start}
+
+  textarea{width:100%;margin-top:16px;min-height:150px;border:2px solid var(--nude-2);border-radius:18px;padding:14px;font:inherit;font-size:16px;color:var(--ink);background:#fff;resize:none;outline:none}
+  textarea:focus{border-color:var(--pink-2)}
+
+  .btn{margin-top:18px;border:none;border-radius:99px;padding:16px 22px;font:inherit;font-weight:700;font-size:16px;cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-2),var(--rose));color:#fff;box-shadow:0 8px 22px rgba(201,111,130,.35);transition:transform .15s;width:100%}
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:#fff;color:var(--rose);box-shadow:0 3px 14px rgba(78,58,63,.08)}
+  .btn:disabled{opacity:.45}
+  .spacer{flex:1}
+
+  .intro{text-align:center;justify-content:center}
+  .date{display:inline-block;margin:0 auto 14px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--rose);font-weight:700;background:#fff;padding:7px 14px;border-radius:99px}
+  .heartbeat{display:inline-block;animation:beat 1.4s infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}45%{transform:scale(1.15)}}
+
+  .gift{font-size:110px;margin:26px auto 0;cursor:pointer;animation:wiggle 1.6s infinite;user-select:none}
+  @keyframes wiggle{0%,100%{transform:rotate(0)}10%{transform:rotate(-8deg)}20%{transform:rotate(8deg)}30%{transform:rotate(-5deg)}40%{transform:rotate(0)}}
+  .gift.open{animation:boom .6s forwards}
+  @keyframes boom{60%{transform:scale(1.4)}100%{transform:scale(0);opacity:0}}
+
+  .frame{margin:20px auto 0;width:100%;padding:14px;border-radius:10px;
+    background:linear-gradient(135deg,#E9D2C6,#D9BBAA 40%,#EEDCD1 60%,#D6B5A3);
+    box-shadow:0 18px 40px rgba(78,58,63,.25), inset 0 0 0 2px rgba(255,255,255,.4)}
+  .mat{background:#FFFDFB;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;box-shadow:inset 0 2px 8px rgba(0,0,0,.08)}
+  .mat img{width:100%;aspect-ratio:3/4.2;object-fit:cover;display:block;opacity:0;transform:scale(.9);transition:opacity .7s,transform .7s}
+  .mat img.on{opacity:1;transform:none}
+  .summary{background:#fff;border-radius:var(--radius);padding:18px;margin-top:20px;box-shadow:0 3px 14px rgba(78,58,63,.07)}
+  .summary h3{font-family:'Fraunces',serif;font-weight:600;margin:0 0 10px;font-size:19px}
+  .summary ul{list-style:none;margin:0;padding:0}
+  .summary li{display:flex;gap:10px;padding:9px 0;border-top:1px dashed var(--nude-2);font-size:14.5px;line-height:1.35}
+  .summary li:first-child{border-top:none}
+  .summary li b{display:block;font-size:12px;color:var(--muted);font-weight:600}
+  .msg{font-family:'Fraunces',serif;font-style:italic;background:#FFF5F7;border-radius:14px;padding:12px 14px;margin-top:10px;white-space:pre-wrap}
+  .sign{text-align:center;margin-top:24px;font-family:'Fraunces',serif;font-style:italic;font-size:24px;color:var(--rose)}
+  .saved{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
+
+  /* perfume reveal */
+  .scent{display:flex;gap:14px;align-items:center;background:#fff;border-radius:var(--radius);padding:18px;margin-top:20px;box-shadow:0 3px 14px rgba(78,58,63,.07);opacity:0;transform:translateY(10px);transition:opacity .7s,transform .7s}
+  .scent.on{opacity:1;transform:none}
+  .bottles{font-size:46px;line-height:1;flex:none}
+  .scent b{font-family:'Fraunces',serif;font-size:19px;font-weight:600;display:block}
+  .scent p{margin:4px 0 0;color:var(--muted);font-size:14px;line-height:1.4}
+
+  /* ---------- calendario ---------- */
+  .days{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+  .day{display:flex;align-items:center;gap:14px;background:#fff;border-radius:20px;padding:12px 14px;border:2px solid transparent;
+    box-shadow:0 3px 14px rgba(78,58,63,.07);font:inherit;color:inherit;text-align:left;cursor:pointer;width:100%;transition:transform .15s}
+  .day:active{transform:scale(.98)}
+  .day .num{flex:none;width:52px;height:56px;border-radius:14px;background:var(--nude);display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .day .num b{font-family:'Fraunces',serif;font-size:22px;line-height:1}
+  .day .num small{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+  .day .info{flex:1;min-width:0}
+  .day .info strong{display:block;font-size:15.5px}
+  .day .info span{display:block;font-size:13px;color:var(--muted);margin-top:2px;line-height:1.35}
+  .day .st{flex:none;font-size:22px}
+  .day.locked{opacity:.55;cursor:default}
+  .day.open{border-color:var(--pink-2);animation:glow 2s infinite}
+  .day.open .num{background:linear-gradient(135deg,var(--pink),var(--pink-2));color:#fff}
+  .day.open .num small{color:#fff}
+  .day.done .num{background:#FFF5F7}
+  .day.final .num{background:linear-gradient(135deg,var(--rose),#9E4C60);color:#fff}
+  .day.final .num small{color:#fff}
+  @keyframes glow{0%,100%{box-shadow:0 3px 14px rgba(78,58,63,.07)}50%{box-shadow:0 0 0 6px rgba(242,184,198,.35)}}
+  .clues{background:#fff;border-radius:var(--radius);padding:16px 18px;margin-top:18px;box-shadow:0 3px 14px rgba(78,58,63,.07)}
+  .clues h3{font-family:'Fraunces',serif;font-weight:600;margin:0 0 6px;font-size:18px}
+  .clues ol{margin:0;padding-left:20px}
+  .clues li{padding:5px 0;font-size:14.5px;line-height:1.4}
+  .clues .none{color:var(--muted);font-size:14px;margin:0}
+  .next{text-align:center;font-size:13px;color:var(--muted);margin-top:14px}
+
+  /* ---------- juegos ---------- */
+  .ghead{display:flex;align-items:center;gap:12px}
+  .ghead .t{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);font-weight:700}
+  .panel{background:#fff;border-radius:var(--radius);padding:16px;margin-top:16px;box-shadow:0 3px 14px rgba(78,58,63,.07)}
+  .status{text-align:center;font-weight:700;color:var(--rose);margin-top:12px;min-height:22px}
+  .shake{animation:shake .4s}
+  @keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+  /* memoria */
+  .mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .card{aspect-ratio:3/4;border-radius:12px;border:none;padding:0;cursor:pointer;position:relative;overflow:hidden;
+    background:linear-gradient(135deg,var(--pink),var(--pink-2));box-shadow:0 3px 10px rgba(78,58,63,.12);font-size:24px;color:#fff}
+  .card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+  .card.up img,.card.ok img{opacity:1}
+  .card.ok{box-shadow:0 0 0 3px var(--pink-2)}
+
+  /* letras */
+  .slots,.tiles{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+  .slots{min-height:48px;margin-bottom:16px}
+  .tile{width:38px;height:44px;border-radius:10px;border:none;font:inherit;font-weight:700;font-size:20px;cursor:pointer;
+    background:var(--nude);color:var(--ink);box-shadow:0 2px 6px rgba(78,58,63,.1)}
+  .slot{width:38px;height:44px;border-radius:10px;border:2px dashed var(--nude-2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;cursor:pointer;background:#fff}
+  .slot.f{border-style:solid;border-color:var(--pink-2);background:#FFF5F7}
+  .tile:disabled{visibility:hidden}
+
+  /* corazones */
+  .field{position:relative;height:360px;border-radius:18px;overflow:hidden;background:linear-gradient(#FFF5F7,#FDE9EE);touch-action:manipulation}
+  .field .h{position:absolute;top:-50px;font-size:34px;cursor:pointer;user-select:none;transition:top linear;padding:4px}
+  .field .pop{animation:popout .3s forwards}
+  @keyframes popout{to{transform:scale(1.8);opacity:0}}
+  .hud{display:flex;justify-content:space-between;font-weight:700;margin-bottom:10px}
+
+  /* V o F */
+  .vf{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .stmt{font-family:'Fraunces',serif;font-size:21px;line-height:1.3;text-align:center;min-height:84px;display:flex;align-items:center;justify-content:center}
+
+  /* rasca */
+  .scratch{position:relative;border-radius:18px;overflow:hidden;height:220px;background:#FFF5F7;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px}
+  .scratch .under{font-family:'Fraunces',serif;font-size:22px;line-height:1.35}
+  .scratch canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer}
+
+  /* ahorcado */
+  .word{display:flex;gap:8px;justify-content:center;margin:6px 0 14px}
+  .word span{width:40px;height:50px;border-bottom:3px solid var(--pink-2);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:28px;font-weight:600}
+  .lives{text-align:center;font-size:22px;letter-spacing:4px}
+  .kb{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
+  .kb button{height:40px;border:none;border-radius:10px;background:var(--nude);font:inherit;font-weight:700;font-size:15px;cursor:pointer;color:var(--ink)}
+  .kb button.y{background:var(--pink-2);color:#fff}
+  .kb button.n{opacity:.3}
+
+  /* pista ganada */
+  .won{text-align:center;justify-content:center}
+  .clue{background:#fff;border-radius:var(--radius);padding:22px 18px;margin-top:18px;box-shadow:0 10px 30px rgba(201,111,130,.18);
+    font-family:'Fraunces',serif;font-size:23px;line-height:1.35;border:2px dashed var(--pink)}
+
+  .fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+  .fx span{position:absolute;top:-40px;will-change:transform;animation:fall linear forwards}
+  @keyframes fall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--r))}}
+</style>
 </head>
 <body>
-  <main>
-    <div class="heart" aria-hidden="true">🩷</div>
-    <h1>Algo especial<br>te está esperando</h1>
-    <p>Vuelve por aquí el día de nuestro aniversario.<br>La sorpresa se abrirá a la hora indicada.</p>
-    <div class="countdown" id="countdown" aria-live="polite"></div>
-    <div class="date">28 de noviembre · 8:00 a. m. (UTC−5)</div>
-  </main>
-  <script>
-    const target = new Date('2026-11-28T13:00:00Z').getTime();
-    const box = (n, label) => `<div class="unit"><div class="number">${String(n).padStart(2,'0')}</div><div class="label">${label}</div></div>`;
-    function tick(){
-      let seconds = Math.max(0, Math.floor((target - Date.now()) / 1000));
-      if(seconds <= 0){
-        document.getElementById('countdown').innerHTML = '<p style="grid-column:1/-1;margin:0">Ya casi está lista 🩷<br>Actualiza esta página en un momento.</p>';
-        return;
+<div class="app">
+  <div class="top hidden" id="top">
+    <button class="back" id="back" aria-label="Atrás">←</button>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="count" id="count"></div>
+  </div>
+  <div class="stage" id="stage"></div>
+</div>
+<div class="fx" id="fx"></div>
+
+<script>
+/* =========================================================
+   CALENDARIO: un juego por día, cada uno da una pista.
+   Cada juego aparece en la fecha programada. El modo de prueba está desactivado.
+   ========================================================= */
+const TEST = false;
+const at8 = d => new Date(d+'T08:00:00-05:00').getTime();
+const DAYS = [
+  { d:'2026-11-22', n:22, game:'memoria', title:'Memoria de nosotros', emoji:'🧠',
+    clue:'Tu regalo no es una sola cosa… viene en <span class="em">varias partes</span> 🎁' },
+  { d:'2026-11-23', n:23, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-24', n:24, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-25', n:25, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-26', n:26, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-27', n:27, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-28', n:28, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' }
+];
+const RELEASED_THROUGH = 22;
+const isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at8(day.d));
+
+let done = {};
+try{ done = JSON.parse(localStorage.getItem('aniv3_done')||'{}') || {}; }catch(e){ done = {}; }
+function markDone(n){ done[n]=true; try{ localStorage.setItem('aniv3_done',JSON.stringify(done)); }catch(e){} }
+
+const stage = document.getElementById('stage');
+const topEl = document.getElementById('top');
+let timers = [];
+function clearTimers(){ timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); timers=[]; }
+function swap(html){
+  clearTimers();
+  topEl.classList.add('hidden');
+  window.scrollTo({top:0});
+  stage.innerHTML = html;
+}
+const strip = s => s.replace(/<[^>]+>/g,'');
+
+/* ---------- inicio ---------- */
+function showHome(){
+  const now = Date.now();
+  const cards = DAYS.map(day=>{
+    const open = isOpen(day), fin = day.game==='final';
+    let cls='day', st='🔒', sub=`Se abre el ${day.n} nov · 8:00 a. m.`;
+    if(open && done[day.n] && !fin){ cls+=' done'; st='✅'; sub='Pista: '+strip(day.clue); }
+    else if(open){ cls+=' open'; st= fin?'🎁':'▶️'; sub= fin?'Abre tu regalo, papi':'¡Ya puedes jugar!'; }
+    else cls+=' locked';
+    if(fin) cls+=' final';
+    return `<button class="${cls}" data-n="${day.n}" ${open?'':'aria-disabled="true"'}>
+      <div class="num"><b>${day.n}</b><small>nov</small></div>
+      <div class="info"><strong>${day.emoji} ${day.title}</strong><span>${sub}</span></div>
+      <div class="st">${st}</div></button>`;
+  }).join('');
+  const got = DAYS.filter(d=>d.clue && done[d.n] && isOpen(d));
+  const clues = got.length
+    ? `<ol>${got.map(d=>`<li>${d.clue}</li>`).join('')}</ol>`
+    : `<p class="none">Todavía ninguna… juega el primero 👀</p>`;
+  const nxt = DAYS.find(d=>!isOpen(d));
+  swap(`<div class="screen">
+    <span class="date" style="align-self:center">camino al 28 · 3 años</span>
+    <h1 style="text-align:center">Hola, <span class="em">papi</span> <span class="heartbeat">🩷</span></h1>
+    <p class="sub" style="text-align:center">Cada día se abre un juego nuevo. Si lo ganas, te llevas una pista de tu regalo. El 28… lo descubres todo 🤭</p>
+    <div class="days">${cards}</div>
+    <div class="clues"><h3>🔎 Tus pistas (${got.length}/6)</h3>${clues}</div>
+    ${nxt?`<div class="next" id="next">El próximo juego se abre en <b id="cdn"></b></div>`:''}
+    <p class="sub" style="text-align:center;margin-top:18px">Tu beiby 🩷</p>
+  </div>`);
+  stage.querySelectorAll('.day').forEach(b=>b.onclick=()=>{
+    const day = DAYS.find(d=>d.n==b.dataset.n);
+    if(!isOpen(day)){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); return; }
+    if(day.game==='final'){ clearTimers(); go(-1); }
+    else openGame(day);
+  });
+  if(nxt){
+    const el=document.getElementById('cdn');
+    const tick=()=>{
+      let s=Math.max(0,Math.floor((at8(nxt.d)-Date.now())/1000));
+      if(s<=0){ el.textContent='Recarga esta página para ver el nuevo juego.'; return; }
+      const d=Math.floor(s/86400); s%=86400; const h=Math.floor(s/3600); s%=3600; const m=Math.floor(s/60); s%=60;
+      el.textContent=(d?d+'d ':'')+h+'h '+String(m).padStart(2,'0')+'m '+String(s).padStart(2,'0')+'s';
+    };
+    tick(); timers.push(setInterval(tick,1000));
+  }
+}
+
+function gameShell(day, inner, help){
+  swap(`<div class="screen">
+    <div class="ghead"><button class="back" id="home" aria-label="Volver">←</button><span class="t">${day.n} nov · juego ${DAYS.indexOf(day)+1} de 6</span></div>
+    <h2>${day.emoji} ${day.title}</h2>
+    <p class="sub">${help}</p>
+    ${inner}
+  </div>`);
+  document.getElementById('home').onclick=showHome;
+}
+
+function win(day){
+  markDone(day.n);
+  setTimeout(()=>{
+    swap(`<div class="screen won">
+      <span class="date">¡Ganaste! 🏆</span>
+      <h1>Pista <span class="em">#${DAYS.indexOf(day)+1}</span></h1>
+      <div class="clue">${day.clue}</div>
+      <p class="sub">Guárdala bien… el 28 todo tendrá sentido 🤭</p>
+      <div class="spacer"></div>
+      <button class="btn" id="home">Volver al calendario 📅</button>
+    </div>`);
+    document.getElementById('home').onclick=showHome;
+    rain();
+  },600);
+}
+
+function openGame(day){ GAMES[day.game](day); }
+
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+const GAMES = {
+    /* 1 · memoria con nuestras fotos */
+  memoria(day){
+    const pics=['gym','helado','piscina','playa','delfines','urraca'];
+    const deck=shuffle([...pics,...pics]);
+    gameShell(day, `<div class="panel"><div class="mem" id="mem">${deck.map((p,i)=>`<button class="card" data-i="${i}" data-p="${p}">🩷<img src="img/${p}.jpg" alt=""></button>`).join('')}</div>
+      <div class="status" id="stat">Parejas: 0/6</div></div>`, 'Encuentra las parejas de fotos. Tú te acuerdas de todo… ¿o no? 😏');
+    let open=[], ok=0, busy=false;
+    stage.querySelectorAll('.card').forEach(c=>c.onclick=()=>{
+      if(busy||c.classList.contains('up')||c.classList.contains('ok')) return;
+      c.classList.add('up'); open.push(c);
+      if(open.length===2){
+        busy=true;
+        const [a,b]=open;
+        if(a.dataset.p===b.dataset.p){
+          a.classList.add('ok'); b.classList.add('ok'); open=[]; busy=false; ok++;
+          document.getElementById('stat').textContent='Parejas: '+ok+'/6';
+          if(ok===6) win(day);
+        } else timers.push(setTimeout(()=>{ a.classList.remove('up'); b.classList.remove('up'); open=[]; busy=false; },800));
       }
-      const days = Math.floor(seconds / 86400); seconds %= 86400;
-      const hours = Math.floor(seconds / 3600); seconds %= 3600;
-      const minutes = Math.floor(seconds / 60); seconds %= 60;
-      document.getElementById('countdown').innerHTML = box(days,'días') + box(hours,'horas') + box(minutes,'min') + box(seconds,'seg');
-    }
-    tick(); setInterval(tick, 1000);
-  </script>
+    });
+  },
+};
+
+
+showHome();
+</script>
 </body>
 </html>
