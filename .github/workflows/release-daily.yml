@@ -1,0 +1,69 @@
+name: Release anniversary stage
+on:
+  schedule:
+    - cron: '0 13 22-28 11 *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check release window
+        id: window
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          from datetime import datetime, timezone
+          now = datetime.now(timezone.utc)
+          if now.year != 2026 or now.month != 11 or not 22 <= now.day <= 28:
+              raise SystemExit('Outside the 2026-11-22 to 2026-11-28 release window.')
+          target = now.replace(hour=13, minute=0, second=0, microsecond=0)
+          if now < target:
+              raise SystemExit('The daily release time (13:00 UTC / 08:00 UTC-5) has not arrived.')
+          print(f'date={now.date().isoformat()}')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Decrypt source package into temporary storage
+        env:
+          CONTENT_KEY: ${{ secrets.CONTENT_KEY }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const envelope = JSON.parse(fs.readFileSync('payload/regalo.zip.enc.json', 'utf8'));
+          const keyHex = process.env.CONTENT_KEY || '';
+          if (!/^[0-9a-fA-F]{64}$/.test(keyHex)) throw new Error('CONTENT_KEY is missing or invalid.');
+          const decipher = crypto.createDecipheriv('aes-256-gcm', Buffer.from(keyHex, 'hex'), Buffer.from(envelope.nonce, 'hex'));
+          decipher.setAuthTag(Buffer.from(envelope.tag, 'hex'));
+          const archive = Buffer.concat([
+            decipher.update(Buffer.from(envelope.ciphertext, 'base64')),
+            decipher.final()
+          ]);
+          fs.writeFileSync('/tmp/regalo-aniversario.zip', archive, { mode: 0o600 });
+          NODE
+      - name: Build only the released day
+        env:
+          RELEASE_DATE: ${{ steps.window.outputs.date }}
+        run: python3 scripts/build-stage.py --input /tmp/regalo-aniversario.zip --date "$RELEASE_DATE" --output /tmp/released-site
+      - name: Publish the released stage to GitHub Pages
+        env:
+          RELEASE_DATE: ${{ steps.window.outputs.date }}
+        run: |
+          git fetch origin gh-pages
+          git worktree add --detach /tmp/pages origin/gh-pages
+          find /tmp/pages -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/released-site/. /tmp/pages/
+          cd /tmp/pages
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No page changes to publish.'
+            exit 0
+          fi
+          git commit -m "Release anniversary stage ${RELEASE_DATE}"
+          git push origin HEAD:gh-pages
