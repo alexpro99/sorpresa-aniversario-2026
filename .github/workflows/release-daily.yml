@@ -17,17 +17,22 @@ jobs:
           from datetime import datetime, timezone
           now = datetime.now(timezone.utc)
           if now.year != 2026 or now.month != 11 or not 22 <= now.day <= 28:
-              raise SystemExit('Outside the 2026-11-22 to 2026-11-28 release window.')
+              print('publish=false')
+              raise SystemExit(0)
           target = now.replace(hour=13, minute=0, second=0, microsecond=0)
           if now < target:
-              raise SystemExit('The daily release time (13:00 UTC / 08:00 UTC-5) has not arrived.')
+              print('publish=false')
+              raise SystemExit(0)
           print(f'date={now.date().isoformat()}')
+          print('publish=true')
           PY
       - uses: actions/checkout@v4
+        if: steps.window.outputs.publish == 'true'
         with:
           ref: main
           fetch-depth: 0
       - name: Decrypt source package into temporary storage
+        if: steps.window.outputs.publish == 'true'
         env:
           CONTENT_KEY: ${{ secrets.CONTENT_KEY }}
         run: |
@@ -46,10 +51,12 @@ jobs:
           fs.writeFileSync('/tmp/regalo-aniversario.zip', archive, { mode: 0o600 });
           NODE
       - name: Build only the released day
+        if: steps.window.outputs.publish == 'true'
         env:
           RELEASE_DATE: ${{ steps.window.outputs.date }}
         run: python3 scripts/build-stage.py --input /tmp/regalo-aniversario.zip --date "$RELEASE_DATE" --output /tmp/released-site
       - name: Publish the released stage to GitHub Pages
+        if: steps.window.outputs.publish == 'true'
         env:
           RELEASE_DATE: ${{ steps.window.outputs.date }}
         run: |
