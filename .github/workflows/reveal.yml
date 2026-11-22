@@ -1,0 +1,55 @@
+name: Reveal anniversary page
+on:
+  schedule:
+    - cron: '0 13 28 11 *'
+permissions:
+  contents: write
+jobs:
+  reveal:
+    if: github.event_name == 'schedule' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check release date
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          now = datetime.now(timezone.utc)
+          target = datetime(2026, 11, 28, 13, 0, tzinfo=timezone.utc)
+          if now < target or now.date() != target.date():
+              raise SystemExit('Not within the release window; keeping the waiting page published.')
+          print('Release window confirmed.')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Decrypt page into temporary directory
+        env:
+          CONTENT_KEY: ${{ secrets.CONTENT_KEY }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const envelope = JSON.parse(fs.readFileSync('payload/anniversary.enc.json', 'utf8'));
+          const key = Buffer.from(process.env.CONTENT_KEY, 'hex');
+          if (key.length !== 32) throw new Error('CONTENT_KEY must be 32 bytes.');
+          const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(envelope.nonce, 'hex'));
+          decipher.setAuthTag(Buffer.from(envelope.tag, 'hex'));
+          const html = Buffer.concat([
+            decipher.update(Buffer.from(envelope.ciphertext, 'base64')),
+            decipher.final()
+          ]);
+          fs.mkdirSync('/tmp/revealed-site', { recursive: true });
+          fs.writeFileSync('/tmp/revealed-site/index.html', html, { mode: 0o644 });
+          NODE
+      - name: Replace the waiting page on GitHub Pages
+        run: |
+          git fetch origin gh-pages
+          git worktree add --detach /tmp/pages origin/gh-pages
+          cp /tmp/revealed-site/index.html /tmp/pages/index.html
+          cd /tmp/pages
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Reveal anniversary page'
+          git push origin HEAD:gh-pages

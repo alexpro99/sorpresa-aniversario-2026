@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fbf4ef">
+  <title>Algo especial 🩷</title>
+  <style>
+    :root{color-scheme:light;--bg:#fbf4ef;--card:#fff;--rose:#c96f82;--pink:#f2b8c6;--ink:#4e3a3f;--muted:#9a8187}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(120% 60% at 100% 0%,#fde3ea 0%,transparent 60%),radial-gradient(100% 50% at 0% 100%,#f6e4d8 0%,transparent 60%),var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
+    main{width:min(100%,460px);padding:36px 24px 30px;text-align:center;background:var(--card);border-radius:26px;box-shadow:0 16px 48px #4e3a3f18}
+    .heart{font-size:44px;animation:beat 1.4s infinite}
+    h1{font-family:Georgia,serif;font-size:clamp(30px,8vw,40px);line-height:1.1;margin:10px 0;color:var(--rose)}
+    p{color:var(--muted);line-height:1.55;margin:10px 0 22px}
+    .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:24px}
+    .unit{background:#fff5f7;border-radius:16px;padding:14px 4px}
+    .number{font-family:Georgia,serif;font-size:clamp(25px,7vw,34px);font-weight:700;color:var(--rose);font-variant-numeric:tabular-nums}
+    .label{margin-top:4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+    .date{font-size:13px;color:var(--rose);font-weight:700;margin-top:22px}
+    @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.17)}30%{transform:scale(1)}45%{transform:scale(1.1)}}
+    @media(prefers-reduced-motion:reduce){.heart{animation:none}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="heart" aria-hidden="true">🩷</div>
+    <h1>Algo especial<br>te está esperando</h1>
+    <p>Vuelve por aquí el día de nuestro aniversario.<br>La sorpresa se abrirá a la hora indicada.</p>
+    <div class="countdown" id="countdown" aria-live="polite"></div>
+    <div class="date">28 de noviembre · 8:00 a. m. (UTC−5)</div>
+  </main>
+  <script>
+    const target = new Date('2026-11-28T13:00:00Z').getTime();
+    const box = (n, label) => `<div class="unit"><div class="number">${String(n).padStart(2,'0')}</div><div class="label">${label}</div></div>`;
+    function tick(){
+      let seconds = Math.max(0, Math.floor((target - Date.now()) / 1000));
+      if(seconds <= 0){
+        document.getElementById('countdown').innerHTML = '<p style="grid-column:1/-1;margin:0">Ya casi está lista 🩷<br>Actualiza esta página en un momento.</p>';
+        return;
+      }
+      const days = Math.floor(seconds / 86400); seconds %= 86400;
+      const hours = Math.floor(seconds / 3600); seconds %= 3600;
+      const minutes = Math.floor(seconds / 60); seconds %= 60;
+      document.getElementById('countdown').innerHTML = box(days,'días') + box(hours,'horas') + box(minutes,'min') + box(seconds,'seg');
+    }
+    tick(); setInterval(tick, 1000);
+  </script>
+</body>
+</html>
