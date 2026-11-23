@@ -1,10 +1,14 @@
 name: Release anniversary stage
 on:
   schedule:
-    - cron: '0 13 22-28 11 *'
+    # GitHub can delay or drop scheduled runs at the top of an hour; retry through 09:45 UTC-5.
+    - cron: '0,15,30,45 13-14 22-28 11 *'
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: anniversary-stage-release
+  cancel-in-progress: false
 jobs:
   release:
     if: github.ref == 'refs/heads/main'
