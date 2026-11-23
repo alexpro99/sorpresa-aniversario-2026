@@ -218,14 +218,15 @@ const at8 = d => new Date(d+'T08:00:00-05:00').getTime();
 const DAYS = [
   { d:'2026-11-22', n:22, game:'memoria', title:'Memoria de nosotros', emoji:'🧠',
     clue:'Tu regalo no es una sola cosa… viene en <span class="em">varias partes</span> 🎁' },
-  { d:'2026-11-23', n:23, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-23', n:23, game:'letras', title:'Ordena las letras', emoji:'🔤',
+    clue:'Una de las partes guarda <span class="em">nuestros recuerdos</span> 📸' },
   { d:'2026-11-24', n:24, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-25', n:25, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-26', n:26, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-27', n:27, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-28', n:28, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' }
 ];
-const RELEASED_THROUGH = 22;
+const RELEASED_THROUGH = 23;
 const isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at8(day.d));
 
 let done = {};
@@ -342,6 +343,31 @@ const GAMES = {
         } else timers.push(setTimeout(()=>{ a.classList.remove('up'); b.classList.remove('up'); open=[]; busy=false; },800));
       }
     });
+  },
+
+    /* 2 · ordenar letras */
+  letras(day){
+    const W='RECUERDOS';
+    let letters=shuffle(W.split('')); while(letters.join('')===W) letters=shuffle(W.split(''));
+    gameShell(day, `<div class="panel"><div class="slots" id="slots"></div><div class="tiles" id="tiles"></div>
+      <div class="status" id="stat">Pista: lo que guardamos de cada aventura juntos 🩷</div></div>`,
+      'Toca las letras en orden para formar la palabra. Si te equivocas, toca una letra de arriba para devolverla.');
+    let picked=[];
+    const draw=()=>{
+      document.getElementById('slots').innerHTML=W.split('').map((_,i)=>{
+        const p=picked[i]; return `<div class="slot${p!=null?' f':''}" data-k="${i}">${p!=null?letters[p]:''}</div>`; }).join('');
+      document.getElementById('tiles').innerHTML=letters.map((l,i)=>`<button class="tile" data-i="${i}" ${picked.includes(i)?'disabled':''}>${l}</button>`).join('');
+      stage.querySelectorAll('.tile').forEach(t=>t.onclick=()=>{ picked.push(+t.dataset.i); draw(); check(); });
+      stage.querySelectorAll('.slot.f').forEach(s=>s.onclick=()=>{ picked.splice(+s.dataset.k,1); draw(); });
+    };
+    const check=()=>{
+      if(picked.length<W.length) return;
+      if(picked.map(i=>letters[i]).join('')===W) win(day);
+      else { const s=document.getElementById('slots'); s.classList.add('shake');
+        document.getElementById('stat').textContent='Casi… inténtalo otra vez 🙈';
+        timers.push(setTimeout(()=>{ picked=[]; draw(); },500)); }
+    };
+    draw();
   },
 };
 
