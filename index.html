@@ -220,13 +220,14 @@ const DAYS = [
     clue:'Tu regalo no es una sola cosa… viene en <span class="em">varias partes</span> 🎁' },
   { d:'2026-11-23', n:23, game:'letras', title:'Ordena las letras', emoji:'🔤',
     clue:'Una de las partes guarda <span class="em">nuestros recuerdos</span> 📸' },
-  { d:'2026-11-24', n:24, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-24', n:24, game:'corazones', title:'Atrapa mis corazones', emoji:'💘',
+    clue:'Esa parte <span class="em">se cuelga en la pared</span> 🖼️' },
   { d:'2026-11-25', n:25, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-26', n:26, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-27', n:27, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-28', n:28, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' }
 ];
-const RELEASED_THROUGH = 23;
+const RELEASED_THROUGH = 24;
 const isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at8(day.d));
 
 let done = {};
@@ -368,6 +369,34 @@ const GAMES = {
         timers.push(setTimeout(()=>{ picked=[]; draw(); },500)); }
     };
     draw();
+  },
+
+    /* 3 · atrapa corazones */
+  corazones(day){
+    const GOAL=15, TIME=25;
+    gameShell(day, `<div class="panel"><div class="hud"><span>🩷 <b id="sc">0</b>/${GOAL}</span><span>⏱️ <b id="tm">${TIME}</b>s</span></div>
+      <div class="field" id="field"></div><button class="btn" id="go">¡Empezar!</button><div class="status" id="stat"></div></div>`,
+      `Atrapa ${GOAL} corazones antes de que se acabe el tiempo. Ojo con los 💔, que restan.`);
+    const field=document.getElementById('field'), sc=document.getElementById('sc'), tm=document.getElementById('tm'), goBtn=document.getElementById('go'), st=document.getElementById('stat');
+    let score=0, left=TIME, playing=false;
+    const spawn=()=>{
+      const bad=Math.random()<.2;
+      const h=document.createElement('span'); h.className='h'; h.textContent=bad?'💔':['🩷','💗','💖','💕'][Math.floor(Math.random()*4)];
+      h.style.left=(Math.random()*82)+'%';
+      const dur=2.2+Math.random()*1.6; h.style.transitionDuration=dur+'s';
+      field.appendChild(h);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>h.style.top='380px'));
+      h.onpointerdown=()=>{ if(!playing) return; score=Math.max(0,score+(bad?-2:1)); sc.textContent=score; h.onpointerdown=null; h.classList.add('pop');
+        setTimeout(()=>h.remove(),300); if(score>=GOAL) end(true); };
+      setTimeout(()=>h.remove(),dur*1000+100);
+    };
+    const end=ok=>{ playing=false; clearTimers(); field.innerHTML='';
+      if(ok) win(day); else { st.textContent='¡Uy! Te faltaron '+(GOAL-score)+'. Otra vez 💪'; goBtn.textContent='Reintentar'; goBtn.style.display=''; } };
+    goBtn.onclick=()=>{
+      score=0; left=TIME; sc.textContent=0; tm.textContent=TIME; st.textContent=''; goBtn.style.display='none'; playing=true;
+      timers.push(setInterval(spawn,520));
+      timers.push(setInterval(()=>{ left--; tm.textContent=left; if(left<=0) end(false); },1000));
+    };
   },
 };
 
