@@ -14,6 +14,15 @@ START = date(2026, 11, 22)
 END = date(2026, 11, 28)
 MEMORY_IMAGES = ('gym.jpg', 'helado.jpg', 'piscina.jpg', 'playa.jpg', 'delfines.jpg', 'urraca.jpg')
 TEST_BYPASS = "const TEST = location.hash === '#prueba';"
+RELEASE_GATE_8_UTC5 = "const at8 = d => new Date(d+'T08:00:00-05:00').getTime();"
+# 07:00 UTC-5 is 09:00 in America/Montevideo (UTC-3).
+RELEASE_GATE_9_URUGUAY = "const at7 = d => new Date(d+'T07:00:00-05:00').getTime();"
+
+
+def set_uruguay_release_time(html: str) -> str:
+    if html.count(RELEASE_GATE_8_UTC5) != 1:
+        raise ValueError('Expected exactly one 08:00 UTC-5 release gate.')
+    return html.replace(RELEASE_GATE_8_UTC5, RELEASE_GATE_9_URUGUAY, 1)
 
 
 def read_safe_archive(archive: zipfile.ZipFile) -> dict[str, bytes]:
@@ -54,7 +63,7 @@ def trim_days(html: str, release_day: int) -> str:
             )
     replacement = 'const DAYS = [\n  ' + ',\n  '.join(entries) + '\n];'
     replacement += f'\nconst RELEASED_THROUGH = {release_day};'
-    replacement += '\nconst isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at8(day.d));'
+    replacement += '\nconst isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at7(day.d));'
     original_is_open = '\n];\nconst isOpen = day => TEST || Date.now() >= at8(day.d);'
     return html[:start] + replacement + html[end + len(original_is_open):]
 
@@ -93,6 +102,7 @@ def build(html: str, files: dict[str, bytes], release_date: date) -> tuple[str, 
         raise ValueError('Release date must be from 2026-11-22 through 2026-11-28.')
     day = release_date.day
     html = html.replace(TEST_BYPASS, 'const TEST = false;')
+    html = set_uruguay_release_time(html)
     html = html.replace('   Se abren a las 8:00 a. m. (UTC-5). #prueba abre todo.',
                         '   Cada juego aparece en la fecha programada. El modo de prueba está desactivado.')
     if "#prueba" in html or TEST_BYPASS in html:
