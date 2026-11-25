@@ -214,7 +214,7 @@
    Cada juego aparece en la fecha programada. El modo de prueba está desactivado.
    ========================================================= */
 const TEST = false;
-const at8 = d => new Date(d+'T08:00:00-05:00').getTime();
+const at7 = d => new Date(d+'T07:00:00-05:00').getTime();
 const DAYS = [
   { d:'2026-11-22', n:22, game:'memoria', title:'Memoria de nosotros', emoji:'🧠',
     clue:'Tu regalo no es una sola cosa… viene en <span class="em">varias partes</span> 🎁' },
@@ -229,7 +229,7 @@ const DAYS = [
   { d:'2026-11-28', n:28, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' }
 ];
 const RELEASED_THROUGH = 25;
-const isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at8(day.d));
+const isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at7(day.d));
 
 let done = {};
 try{ done = JSON.parse(localStorage.getItem('aniv3_done')||'{}') || {}; }catch(e){ done = {}; }
