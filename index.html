@@ -222,12 +222,13 @@ const DAYS = [
     clue:'Una de las partes guarda <span class="em">nuestros recuerdos</span> 📸' },
   { d:'2026-11-24', n:24, game:'corazones', title:'Atrapa mis corazones', emoji:'💘',
     clue:'Esa parte <span class="em">se cuelga en la pared</span> 🖼️' },
-  { d:'2026-11-25', n:25, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-25', n:25, game:'vf', title:'¿Verdadero o falso?', emoji:'🤔',
+    clue:'Otra parte <span class="em">no se ve… pero se siente</span> 👃✨' },
   { d:'2026-11-26', n:26, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-27', n:27, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
   { d:'2026-11-28', n:28, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' }
 ];
-const RELEASED_THROUGH = 24;
+const RELEASED_THROUGH = 25;
 const isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at8(day.d));
 
 let done = {};
@@ -397,6 +398,32 @@ const GAMES = {
       timers.push(setInterval(spawn,520));
       timers.push(setInterval(()=>{ left--; tm.textContent=left; if(left<=0) end(false); },1000));
     };
+  },
+
+    /* 4 · verdadero o falso */
+  vf(day){
+    const S=[
+      ['Nos conocimos en el gym 🏋️',true],
+      ['Nuestra primera cita fue en el cine 🎬',false],
+      ['"Tinemo" significa te amo 🩷',true],
+      ['Te amo muchísimo, muchísimo',false,'Mentira… te amo UN POQUITO 🤏😂'],
+      ['Nuestro aniversario es el 28 de noviembre',true],
+    ];
+    gameShell(day, `<div class="panel"><div class="count" id="cnt" style="text-align:center"></div><div class="stmt" id="stmt"></div>
+      <div class="vf"><button class="opt" data-v="1"><span class="e">✅</span><span class="t">Verdadero</span></button>
+      <button class="opt" data-v="0"><span class="e">❌</span><span class="t">Falso</span></button></div>
+      <div class="status" id="stat"></div></div>`, 'Responde bien las 5. Si fallas, te dejo intentarlo otra vez… pero te miro feo 😤');
+    let i=0, lock=false;
+    const show=()=>{ document.getElementById('cnt').textContent=(i+1)+'/'+S.length; document.getElementById('stmt').textContent=S[i][0]; };
+    stage.querySelectorAll('.vf .opt').forEach(b=>b.onclick=()=>{
+      if(lock) return;
+      const st=document.getElementById('stat');
+      if((b.dataset.v==='1')===S[i][1]){
+        lock=true; st.textContent=S[i][2]||'¡Eso! 🩷';
+        timers.push(setTimeout(()=>{ lock=false; st.textContent=''; i++; if(i>=S.length) win(day); else show(); },900));
+      } else { const p=document.getElementById('stmt'); p.classList.remove('shake'); void p.offsetWidth; p.classList.add('shake'); st.textContent='¡Ey! Piénsalo otra vez 😤'; }
+    });
+    show();
   },
 };
 
