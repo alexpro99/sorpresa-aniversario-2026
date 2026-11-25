@@ -1,8 +1,8 @@
 name: Release anniversary stage
 on:
   schedule:
-    # GitHub can delay or drop scheduled runs at the top of an hour; retry through 09:45 UTC-5.
-    - cron: '0,15,30,45 13-14 22-28 11 *'
+    # 09:00 America/Montevideo = 12:00 UTC; retry through 10:45 Montevideo.
+    - cron: '0,15,30,45 12-13 26-28 11 *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -23,7 +23,7 @@ jobs:
           if now.year != 2026 or now.month != 11 or not 22 <= now.day <= 28:
               print('publish=false')
               raise SystemExit(0)
-          target = now.replace(hour=13, minute=0, second=0, microsecond=0)
+          target = now.replace(hour=12, minute=0, second=0, microsecond=0)
           if now < target:
               print('publish=false')
               raise SystemExit(0)
