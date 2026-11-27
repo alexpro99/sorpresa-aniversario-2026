@@ -226,10 +226,11 @@ const DAYS = [
     clue:'Otra parte <span class="em">no se ve… pero se siente</span> 👃✨' },
   { d:'2026-11-26', n:26, game:'rasca', title:'Rasca y gana', emoji:'🪙',
     clue:'Viene en un <span class="em">frasco de cristal</span> 💎 (y no, no es helado)' },
-  { d:'2026-11-27', n:27, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' },
+  { d:'2026-11-27', n:27, game:'ahorcado', title:'Adivina la palabra', emoji:'🔎',
+    clue:'Son <span class="em">dos frasquitos</span> 🧴🧴… para que huelas rico y yo te encuentre por el olor 😏' },
   { d:'2026-11-28', n:28, game:'locked', title:'Sorpresa diaria', emoji:'🔒', clue:'' }
 ];
-const RELEASED_THROUGH = 26;
+const RELEASED_THROUGH = 27;
 const isOpen = day => TEST || (day.n <= RELEASED_THROUGH && Date.now() >= at7(day.d));
 
 let done = {};
@@ -450,6 +451,29 @@ const GAMES = {
     cv.onpointerdown=e=>{ down=true; cv.setPointerCapture(e.pointerId); scratch(e); };
     cv.onpointermove=e=>{ if(down) scratch(e); };
     cv.onpointerup=cv.onpointercancel=()=>{ down=false; check(); };
+  },
+
+    /* 6 · adivina la palabra */
+  ahorcado(day){
+    const W='AROMA', MAX=6;
+    const ABC='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
+    gameShell(day, `<div class="panel"><div class="lives" id="lv"></div><div class="word" id="wd"></div>
+      <div class="status" id="stat">Pista: lo que dejas cuando te vas… y me encanta 😌</div><div class="kb" id="kb"></div></div>`,
+      'Adivina la palabra letra por letra. Tienes 6 corazones.');
+    let used=new Set(), miss=0;
+    const draw=()=>{
+      document.getElementById('lv').textContent='🩷'.repeat(MAX-miss)+'🤍'.repeat(miss);
+      document.getElementById('wd').innerHTML=W.split('').map(l=>`<span>${used.has(l)?l:''}</span>`).join('');
+      document.getElementById('kb').innerHTML=ABC.map(l=>`<button data-l="${l}" class="${used.has(l)?(W.includes(l)?'y':'n'):''}" ${used.has(l)?'disabled':''}>${l}</button>`).join('');
+      stage.querySelectorAll('#kb button').forEach(b=>b.onclick=()=>pick(b.dataset.l));
+    };
+    const pick=l=>{
+      used.add(l); if(!W.includes(l)) miss++;
+      draw();
+      if(W.split('').every(x=>used.has(x))) win(day);
+      else if(miss>=MAX){ document.getElementById('stat').textContent='Casi… ¡otra vez! 🙈'; timers.push(setTimeout(()=>{ used=new Set(); miss=0; draw(); },1100)); }
+    };
+    draw();
   },
 };
 
